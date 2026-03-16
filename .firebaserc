@@ -1,0 +1,19 @@
+{
+  "projects": {},
+  "targets": {
+    "care-law": {
+      "hosting": {
+        "admin": [
+          "care-law-admin"
+        ],
+        "franchisor": [
+          "care-law-franchisor"
+        ],
+        "franchisee": [
+          "care-law-franchisee"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

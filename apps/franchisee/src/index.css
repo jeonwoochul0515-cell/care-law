@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-brand: #1E2D4E;
+  --color-navy:  #0F1E30;
+  --color-gold:  #C9A84C;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+.safe-top    { padding-top: max(0.75rem, env(safe-area-inset-top)); }
+.safe-bottom { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }

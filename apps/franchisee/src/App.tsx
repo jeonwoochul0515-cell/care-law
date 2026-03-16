@@ -31,7 +31,8 @@ function BrandInjector() {
     }
     themeMeta.content = brand.primary_color;
 
-    // Dynamic PWA manifest via blob URL
+    // Dynamic PWA manifest via blob URL (blob: origin이므로 절대 URL 필수)
+    const origin = window.location.origin;
     const manifest = {
       name: brand.app_name,
       short_name: brand.app_name,
@@ -39,15 +40,15 @@ function BrandInjector() {
       background_color: brand.primary_color,
       display: 'standalone' as const,
       orientation: 'portrait' as const,
-      start_url: '/',
+      start_url: origin + '/',
       icons: brand.logo_url
         ? [
             { src: brand.logo_url, sizes: '192x192', type: 'image/png' },
             { src: brand.logo_url, sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           ]
         : [
-            { src: '/icons/icon-192.svg', sizes: '192x192', type: 'image/svg+xml' },
-            { src: '/icons/icon-512.svg', sizes: '512x512', type: 'image/svg+xml' },
+            { src: origin + '/icons/icon-192.svg', sizes: '192x192', type: 'image/svg+xml' },
+            { src: origin + '/icons/icon-512.svg', sizes: '512x512', type: 'image/svg+xml' },
           ],
     };
     const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });

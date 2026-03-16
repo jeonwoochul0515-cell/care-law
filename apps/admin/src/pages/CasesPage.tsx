@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase, CASE_TYPE_LABELS, CASE_STATUS_LABELS } from '@care-law/shared';
 import type { Case } from '@care-law/shared';
 
@@ -10,6 +11,7 @@ const STATUS_STYLE: Record<string, string> = {
 };
 
 export default function CasesPage() {
+  const navigate = useNavigate();
   const [cases, setCases]     = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState('all');
@@ -56,7 +58,8 @@ export default function CasesPage() {
             ) : filtered.length === 0 ? (
               <tr><td colSpan={4} className="text-center py-10 text-gray-400">케이스가 없습니다</td></tr>
             ) : filtered.map(c => (
-              <tr key={c.id} className="border-t border-gray-50">
+              <tr key={c.id} onClick={() => navigate(`/cases/${c.id}`)}
+                  className="border-t border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors">
                 <td className="px-5 py-3 font-medium text-gray-900">{c.title}</td>
                 <td className="px-5 py-3 text-gray-600">{CASE_TYPE_LABELS[c.type]}</td>
                 <td className="px-5 py-3">

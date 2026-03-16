@@ -6,6 +6,7 @@ import DashboardPage    from './pages/DashboardPage';
 import BrandsPage       from './pages/BrandsPage';
 import BrandDetailPage  from './pages/BrandDetailPage';
 import CasesPage        from './pages/CasesPage';
+import CaseDetailPage   from './pages/CaseDetailPage';
 import SubscriptionsPage from './pages/SubscriptionsPage';
 import SettingsPage     from './pages/SettingsPage';
 import AdminLayout      from './layouts/AdminLayout';
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="brands"          element={<BrandsPage />} />
           <Route path="brands/:id"      element={<BrandDetailPage />} />
           <Route path="cases"           element={<CasesPage />} />
+          <Route path="cases/:id"      element={<CaseDetailPage />} />
           <Route path="subscriptions"   element={<SubscriptionsPage />} />
           <Route path="settings"        element={<SettingsPage />} />
         </Route>

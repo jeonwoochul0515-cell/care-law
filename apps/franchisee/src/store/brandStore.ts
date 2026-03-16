@@ -10,6 +10,9 @@ function getSubdomain(): string {
   const host = window.location.hostname;
   if (host === 'localhost' || host === '127.0.0.1') return 'dev';
 
+  // Firebase Hosting URL (care-law-franchisee.web.app) → 공통 앱이므로 brand 파라미터 필요
+  if (host.endsWith('.web.app') || host.endsWith('.firebaseapp.com')) return 'default';
+
   // 프로덕션: subdomain.care-law.kr → subdomain 추출
   const parts = host.split('.');
   return parts.length >= 3 ? parts[0] : 'default';
@@ -31,12 +34,29 @@ export const useBrandStore = create<BrandState>((set) => ({
     const subdomain = getSubdomain();
     set({ loading: true, error: null });
     try {
-      const { data, error } = await supabase
-        .from('carelaw_brands')
-        .select('*')
-        .eq('subdomain', subdomain)
-        .eq('active', true)
-        .single();
+      let data, error;
+
+      if (subdomain === 'default' || subdomain === 'dev') {
+        // 기본/개발 환경: 첫 번째 활성 브랜드 로드
+        const res = await supabase
+          .from('carelaw_brands')
+          .select('*')
+          .eq('active', true)
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .single();
+        data = res.data;
+        error = res.error;
+      } else {
+        const res = await supabase
+          .from('carelaw_brands')
+          .select('*')
+          .eq('subdomain', subdomain)
+          .eq('active', true)
+          .single();
+        data = res.data;
+        error = res.error;
+      }
 
       if (error || !data) {
         set({ error: '브랜드를 찾을 수 없습니다.', loading: false });

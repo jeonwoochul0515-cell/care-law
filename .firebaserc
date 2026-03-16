@@ -1,5 +1,5 @@
 {
-  "projects": {},
+  "projects": { "default": "care-law" },
   "targets": {
     "care-law": {
       "hosting": {

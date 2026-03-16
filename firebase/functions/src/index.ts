@@ -26,20 +26,54 @@ function getAnthropic() {
   return _anthropic;
 }
 
-const LEGAL_SYSTEM_PROMPT = `당신은 법률사무소 청송의 AI 법률 상담 도우미입니다.
-가맹점주들의 일상 영업 중 발생하는 법률 문제를 안내합니다.
+const LEGAL_SYSTEM_PROMPT = `당신은 법률사무소 청송의 20년차 베테랑 사무장입니다.
+이름은 "케어로 사무장"입니다. 민사·형사·가사·행정 등 모든 법률 영역의 사건을 다룹니다.
 
-[답변 원칙]
-- 항상 한국어로 답변합니다
-- 비전문가도 이해할 수 있는 쉬운 용어를 사용합니다
-- 구체적인 사건 처리는 반드시 변호사 상담을 권유합니다
+[당신의 역할]
+- 의뢰인의 이야기를 경청하고, 감정적으로 공감하며 위로합니다
+- 법적으로 의미 있는 사실관계를 자연스럽게 파악합니다
+- 의뢰인이 원하는 방향과 목표를 정리합니다
+- 충분한 사실관계가 모이면, 변호사에게 보고할 정리된 페이퍼를 작성합니다
 
-[다루는 분야]
-형사(고소·고발·수사대응), 민사(손해배상·계약), 노무(임금·퇴직금·감독조사),
-임대차(임대료·명도·권리금), 가맹(계약해지·갱신·영업지역)
+[대화 스타일]
+- 항상 한국어, 따뜻하고 친절한 톤
+- "~하셨군요", "많이 힘드셨겠습니다", "걱정되시죠" 등 공감 표현 적극 사용
+- 비전문가도 이해할 수 있는 쉬운 용어
+- 한 번에 너무 많은 질문을 하지 말고, 대화하듯 자연스럽게 하나씩 여쭤보기
+- 어떤 법률 분야든 거절하지 않고 이야기를 들어줍니다
 
-[면책고지 - 매 답변 말미]
-※ 이 답변은 일반적인 법률 정보이며 법률 자문이 아닙니다.`;
+[절대 금지]
+- 직접적인 법률 상담이나 결론적 법률 의견 제시 금지 ("~해야 합니다", "~할 수 있습니다" 같은 단정 금지)
+- 나홀로 소송, AI 소송, 자가 대응 등을 권유하거나 추천하지 않습니다
+- "제 역할 범위를 벗어납니다", "전문 상담은 제 역할이 아닙니다" 같은 거절 금지
+
+[사실관계 파악 단계]
+1. 의뢰인의 상황을 충분히 듣습니다 (무슨 일이 있었는지, 상대방은 누구인지, 시기, 증거 등)
+2. 감정적으로 공감하면서 추가 사실을 자연스럽게 확인합니다
+3. 의뢰인이 원하는 결과(목표)를 파악합니다
+
+[사실관계 충분히 모였을 때]
+아래 형식으로 정리된 페이퍼를 제시합니다:
+
+---
+📋 **사건 요약 보고서**
+
+**의뢰인 상황**: (정리된 사실관계)
+**상대방**: (관련 당사자)
+**핵심 쟁점**: (법적으로 의미있는 포인트)
+**의뢰인 희망**: (원하는 결과)
+**관련 증거**: (있는 경우)
+
+**변호사 검토 옵션**:
+1️⃣ [옵션 A] - (간단 설명)
+2️⃣ [옵션 B] - (간단 설명)
+3️⃣ [옵션 C] - (간단 설명)
+
+→ 변호사님께서 검토 후 최선의 방향을 안내해 드리겠습니다.
+---
+
+[면책고지 - 첫 대화에서 1회만]
+※ 저는 사무장으로서 사실관계를 정리해 드리며, 최종 법률 판단은 담당 변호사님께서 해주십니다.`;
 
 // ════════════════════════════════════════════════════════
 // 1. AI 법률 상담
@@ -471,5 +505,113 @@ export const uploadDocument = onCall(
     }
 
     return { url, fileName: safeName };
+  }
+);
+
+// ════════════════════════════════════════════════════════
+// 12. 첨부파일 분석 (이미지 OCR + 문서 요약 via Claude Vision)
+// ════════════════════════════════════════════════════════
+export const analyzeAttachment = onCall(
+  { region: 'asia-northeast3', cors: true, secrets: ['CLAUDE_API_KEY', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'] },
+  async (req) => {
+    const uid = req.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', '로그인이 필요합니다.');
+    if (!req.auth?.token?.active) throw new HttpsError('permission-denied', '이용 권한이 없습니다.');
+
+    const { caseId, base64, fileName, contentType, userMessage } = req.data as {
+      caseId: string; base64: string; fileName: string; contentType: string; userMessage?: string;
+    };
+
+    if (!caseId || !base64) throw new HttpsError('invalid-argument', '필수 데이터가 없습니다.');
+
+    const { data: caseData } = await getSupabase().from('carelaw_cases').select('user_uid, brand_id').eq('id', caseId).single();
+    if (!caseData || caseData.user_uid !== uid) throw new HttpsError('permission-denied', '권한이 없습니다.');
+
+    // 1) Supabase Storage에 파일 업로드
+    const buffer = Buffer.from(base64, 'base64');
+    const ext = fileName.split('.').pop() ?? 'jpg';
+    const safeName = `attach_${Date.now()}.${ext}`;
+    const path = `attachments/${caseData.brand_id}/${uid}/${safeName}`;
+
+    await getSupabase().storage.from('care-law').upload(path, buffer, { contentType, upsert: true });
+    const { data: urlData } = getSupabase().storage.from('care-law').getPublicUrl(path);
+    const fileUrl = urlData.publicUrl;
+
+    // 케이스 첨부파일 목록에 추가
+    const { data: existingCase } = await getSupabase().from('carelaw_cases').select('attachments').eq('id', caseId).single();
+    await getSupabase().from('carelaw_cases')
+      .update({ attachments: [...(existingCase?.attachments ?? []), fileUrl], updated_at: new Date().toISOString() })
+      .eq('id', caseId);
+
+    // 2) 사용자 메시지 저장 (첨부파일 포함)
+    const userText = userMessage
+      ? `📎 [첨부파일: ${fileName}]\n${userMessage}`
+      : `📎 [첨부파일: ${fileName}]`;
+    await getSupabase().from('carelaw_messages').insert({ case_id: caseId, role: 'user', content: userText });
+
+    // 3) Claude Vision으로 분석
+    const isImage = contentType.startsWith('image/');
+    const messages: any[] = [];
+
+    // 이전 대화 컨텍스트 (최근 10개)
+    const { data: history } = await getSupabase()
+      .from('carelaw_messages').select('role, content')
+      .eq('case_id', caseId).order('created_at', { ascending: true }).limit(10);
+
+    if (history) {
+      messages.push(...history.map((m: any) => ({ role: m.role as 'user' | 'assistant', content: m.content })));
+    }
+
+    const isPdf = contentType === 'application/pdf';
+    const analysisPrompt = `의뢰인이 첨부한 파일입니다. 파일명: ${fileName}
+${userMessage ? `의뢰인 메모: ${userMessage}` : ''}
+
+다음을 수행해주세요:
+1. 파일의 내용을 꼼꼼히 읽고 핵심 내용을 정리합니다
+2. 법적으로 의미있는 내용(날짜, 금액, 당사자, 조항 등)을 파악합니다
+3. 의뢰인에게 확인이 필요한 사항을 물어봅니다
+
+사무장 역할에 맞게 따뜻하고 친절하게 응대해주세요.`;
+
+    if (isImage) {
+      messages.push({
+        role: 'user' as const,
+        content: [
+          { type: 'image' as const, source: { type: 'base64' as const, media_type: contentType, data: base64 } },
+          { type: 'text' as const, text: analysisPrompt },
+        ],
+      });
+    } else if (isPdf) {
+      messages.push({
+        role: 'user' as const,
+        content: [
+          { type: 'document' as const, source: { type: 'base64' as const, media_type: 'application/pdf' as const, data: base64 } },
+          { type: 'text' as const, text: analysisPrompt },
+        ],
+      });
+    } else {
+      messages.push({
+        role: 'user' as const,
+        content: `의뢰인이 파일을 첨부했습니다. 파일명: ${fileName} (${contentType})
+${userMessage ? `의뢰인 메모: ${userMessage}` : ''}
+
+파일이 접수되었음을 안내하고, 변호사가 검토할 예정임을 알려주세요.`,
+      });
+    }
+
+    const response = await getAnthropic().messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1500,
+      system: LEGAL_SYSTEM_PROMPT,
+      messages,
+    });
+
+    const aiText = response.content[0].type === 'text' ? response.content[0].text : '';
+
+    // AI 응답 저장
+    await getSupabase().from('carelaw_messages').insert({ case_id: caseId, role: 'assistant', content: aiText });
+    await getSupabase().from('carelaw_cases').update({ status: 'consulting', updated_at: new Date().toISOString() }).eq('id', caseId);
+
+    return { message: aiText, fileUrl };
   }
 );

@@ -24,7 +24,7 @@ export default function FranchisorLayout() {
         <div className="px-5 py-5 border-b border-white/10">
           <div className="flex items-center gap-2 mb-1">
             {brand?.logo_url
-              ? <img src={brand.logo_url} alt="" className="w-7 h-7 rounded-lg object-cover" />
+              ? <img src={brand.logo_url} alt="" className="w-7 h-7 rounded-lg object-contain bg-white/20 p-0.5" />
               : <FaBalanceScale className="text-[#C9A84C] text-lg" />
             }
             <div>

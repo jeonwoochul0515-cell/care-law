@@ -28,17 +28,38 @@ export default function BrandingPage() {
     });
   }, [brandId]);
 
+  const resizeImage = (file: File, maxSize: number): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const objUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(objUrl);
+        const canvas = document.createElement('canvas');
+        const size = Math.min(img.width, img.height, maxSize);
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { reject(new Error('Canvas not supported')); return; }
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, size, size);
+        const scale = Math.min(size / img.width, size / img.height);
+        const w = img.width * scale;
+        const h = img.height * scale;
+        ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+        resolve(canvas.toDataURL('image/png').split(',')[1]);
+      };
+      img.onerror = () => { URL.revokeObjectURL(objUrl); reject(new Error('이미지를 읽을 수 없습니다')); };
+      img.src = objUrl;
+    });
+  };
+
   const handleLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !brandId) return;
     setUploading(true);
     try {
-      const reader = new FileReader();
-      const base64 = await new Promise<string>((resolve) => {
-        reader.onload = () => resolve((reader.result as string).split(',')[1]);
-        reader.readAsDataURL(file);
-      });
-      const { data } = await uploadLogoFn({ base64, fileName: file.name, contentType: file.type }) as any;
+      const base64 = await resizeImage(file, 256);
+      const { data } = await uploadLogoFn({ base64, fileName: file.name, contentType: 'image/png' }) as any;
       if (data?.url) setLogoUrl(data.url);
     } catch (err) {
       console.error('Logo upload failed:', err);
@@ -63,7 +84,7 @@ export default function BrandingPage() {
       {/* 미리보기 */}
       <div className="rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
         <div className="px-4 py-3 text-white flex items-center gap-2" style={{ background: color }}>
-          {logoUrl ? <img src={logoUrl} alt="" className="w-6 h-6 rounded-full object-cover" />
+          {logoUrl ? <img src={logoUrl} alt="" className="w-6 h-6 rounded-full object-contain bg-white/20 p-0.5" />
             : <div className="w-6 h-6 rounded-full bg-[#C9A84C] flex items-center justify-center text-xs font-bold text-[#1E2D4E]">C</div>}
           <span className="font-bold text-sm text-[#C9A84C]">{appName || '앱 이름'}</span>
         </div>
@@ -74,7 +95,7 @@ export default function BrandingPage() {
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-gray-700">브랜드 로고</label>
         <div className="flex items-center gap-4">
-          {logoUrl ? <img src={logoUrl} alt="" className="w-16 h-16 rounded-xl object-cover border border-gray-200" />
+          {logoUrl ? <img src={logoUrl} alt="" className="w-16 h-16 rounded-xl object-contain border border-gray-200 bg-gray-50 p-1" />
             : <div className="w-16 h-16 rounded-xl bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs">미설정</div>}
           <button onClick={() => fileRef.current?.click()} disabled={uploading}
                   className="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 disabled:opacity-50">

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>오프라인</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1E2D4E;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1.5rem;
+    }
+    .container { max-width: 360px; }
+    .icon {
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.8;
+    }
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    p {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      line-height: 1.5;
+      margin-bottom: 2rem;
+    }
+    button {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      padding: 0.75rem 2rem;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: rgba(255, 255, 255, 0.25); }
+    button:active { background: rgba(255, 255, 255, 0.35); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">&#x1F4F6;</div>
+    <h1>인터넷 연결을 확인해주세요</h1>
+    <p>현재 오프라인 상태입니다.<br/>Wi-Fi 또는 모바일 데이터 연결을 확인한 후 다시 시도해주세요.</p>
+    <button onclick="window.location.reload()">다시 시도</button>
+  </div>
+</body>
+</html>

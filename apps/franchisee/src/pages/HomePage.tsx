@@ -29,7 +29,7 @@ export default function HomePage() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             {brand?.logo_url
-              ? <img src={brand.logo_url} alt="" className="w-7 h-7 rounded-full object-cover" />
+              ? <img src={brand.logo_url} alt="" className="w-7 h-7 rounded-full object-contain bg-white/20 p-0.5" />
               : <div className="w-7 h-7 rounded-full bg-[#C9A84C] flex items-center justify-center text-xs font-bold text-[#1E2D4E]">C</div>
             }
             <span className="font-bold tracking-wide text-sm" style={{ color: '#C9A84C' }}>

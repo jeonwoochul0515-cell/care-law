@@ -8,7 +8,7 @@ export function LockedPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-6 text-center"
          style={{ background: brand?.primary_color ?? '#1E2D4E' }}>
-      {brand?.logo_url && <img src={brand.logo_url} alt="" className="w-16 h-16 rounded-full mb-6 object-cover" />}
+      {brand?.logo_url && <img src={brand.logo_url} alt="" className="w-16 h-16 rounded-full mb-6 object-contain bg-white/20 p-1" />}
       <div className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center mb-6 text-4xl">🔒</div>
       <h1 className="text-white text-xl font-bold mb-3">서비스 이용 불가</h1>
       <p className="text-white/60 text-sm leading-relaxed mb-8">

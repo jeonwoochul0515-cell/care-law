@@ -87,9 +87,9 @@ export default function InvitePage() {
                     className="flex-1 border border-gray-200 text-gray-700 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2">
               <FaCopy /> {copied ? '복사됨!' : '링크 복사'}
             </button>
-            <button onClick={share}
+<button onClick={share}
                     className="flex-1 bg-[#1E2D4E] text-white py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
-              📤 공유하기
+              📤 공유
             </button>
           </div>
         </div>

@@ -103,7 +103,7 @@ export default function OnboardPage() {
       {/* 로고 */}
       <div className="flex flex-col items-center gap-3">
         {logo
-          ? <img src={logo} alt={name} className="w-20 h-20 rounded-2xl object-cover shadow-xl" />
+          ? <img src={logo} alt={name} className="w-20 h-20 rounded-2xl object-contain bg-white shadow-xl p-1" />
           : <div className="w-20 h-20 rounded-2xl bg-[#C9A84C] flex items-center justify-center text-3xl font-bold text-[#1E2D4E]">C</div>
         }
         <h1 className="text-white text-2xl font-bold tracking-wide">{name}</h1>

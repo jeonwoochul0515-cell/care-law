@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" ry="80" fill="#1E2D4E"/>
+  <text x="256" y="288" text-anchor="middle" dominant-baseline="central"
+        font-family="'Helvetica Neue', Arial, sans-serif" font-weight="700"
+        font-size="192" fill="#FFFFFF" letter-spacing="-5">CL</text>
+</svg>

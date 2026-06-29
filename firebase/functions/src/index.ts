@@ -4,6 +4,15 @@ import { onSchedule }        from 'firebase-functions/v2/scheduler';
 import { createClient }      from '@supabase/supabase-js';
 import Anthropic             from '@anthropic-ai/sdk';
 
+// Node 20 런타임엔 전역 WebSocket이 없어 최신 supabase-js가 createClient에서 RealtimeClient를
+// 초기화하다 throw한다. 서버는 Realtime을 쓰지 않으므로 생성만 통과시키도록 폴리필을 제공한다.
+// (근본 차단: package.json에서 supabase-js를 정확한 버전으로 핀 + lockfile 커밋.)
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const ws = require('ws');
+if (!(globalThis as { WebSocket?: unknown }).WebSocket) {
+  (globalThis as { WebSocket?: unknown }).WebSocket = ws;
+}
+
 admin.initializeApp();
 
 // ── 지연 초기화 (배포 분석 시 env 미로드 대응) ──────────────

@@ -12,9 +12,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk":  "^0.24.0",
-    "@supabase/supabase-js": "^2.43.0",
+    "@supabase/supabase-js": "2.99.1",
     "firebase-admin":     "^12.1.0",
-    "firebase-functions": "^4.8.0"
+    "firebase-functions": "^4.8.0",
+    "ws":                 "8.21.0"
   },
   "devDependencies": {
     "typescript": "^5.4.0"

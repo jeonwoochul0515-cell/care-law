@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase, CASE_TYPE_LABELS, CASE_STATUS_LABELS } from '@care-law/shared';
 import type { Case, Message } from '@care-law/shared';
-import { FaArrowLeft, FaUser, FaRobot, FaFileAlt } from 'react-icons/fa';
+import { FaArrowLeft, FaUser, FaRobot, FaFileAlt, FaPaperclip, FaExternalLinkAlt, FaFilePdf, FaImage } from 'react-icons/fa';
 
 const STATUS_STYLE: Record<string, string> = {
   open: 'bg-yellow-50 text-yellow-700',
@@ -86,6 +86,33 @@ export default function CaseDetailPage() {
         </div>
       )}
 
+      {/* 첨부파일 목록 */}
+      {caseData.attachments && caseData.attachments.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <FaPaperclip className="text-gray-500" />
+            <h2 className="font-bold text-gray-900">첨부파일 ({caseData.attachments.length}건)</h2>
+          </div>
+          <div className="space-y-2">
+            {caseData.attachments.map((url, i) => {
+              const name = decodeURIComponent(url.split('/').pop() ?? `파일 ${i + 1}`);
+              const isPdf = url.toLowerCase().endsWith('.pdf');
+              const isImg = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(url);
+              return (
+                <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                   className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                  {isPdf ? <FaFilePdf className="text-red-500 text-lg flex-shrink-0" />
+                    : isImg ? <FaImage className="text-blue-500 text-lg flex-shrink-0" />
+                    : <FaFileAlt className="text-gray-500 text-lg flex-shrink-0" />}
+                  <span className="text-sm text-gray-700 flex-1 truncate">{name}</span>
+                  <FaExternalLinkAlt className="text-gray-400 text-xs flex-shrink-0" />
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* 대화 내역 */}
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
@@ -115,11 +142,19 @@ export default function CaseDetailPage() {
                   {new Date(msg.created_at).toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
-              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap pl-5">
-                {msg.content.length > 300 && !msg.content.includes('사건 요약 보고서')
-                  ? msg.content.slice(0, 300) + '...'
+              <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap pl-5">
+                {msg.content.startsWith('📎') && msg.content.includes('[첨부파일:') ? (
+                  <div className="flex items-center gap-2 py-1">
+                    <FaPaperclip className="text-blue-500 text-xs" />
+                    <span className="text-blue-600 font-medium">{msg.content.split('\n')[0]}</span>
+                    {msg.content.split('\n').slice(1).join('\n') && (
+                      <span className="block mt-1 text-gray-600">{msg.content.split('\n').slice(1).join('\n')}</span>
+                    )}
+                  </div>
+                ) : msg.content.length > 500 && !msg.content.includes('사건 요약 보고서')
+                  ? msg.content.slice(0, 500) + '...'
                   : msg.content}
-              </p>
+              </div>
             </div>
           ))}
         </div>

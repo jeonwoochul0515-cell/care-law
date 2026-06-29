@@ -533,7 +533,8 @@ export const analyzeAttachment = onCall(
     const safeName = `attach_${Date.now()}.${ext}`;
     const path = `attachments/${caseData.brand_id}/${uid}/${safeName}`;
 
-    await getSupabase().storage.from('care-law').upload(path, buffer, { contentType, upsert: true });
+    const { error: uploadErr } = await getSupabase().storage.from('care-law').upload(path, buffer, { contentType, upsert: true });
+    if (uploadErr) console.error('Storage upload error:', uploadErr);
     const { data: urlData } = getSupabase().storage.from('care-law').getPublicUrl(path);
     const fileUrl = urlData.publicUrl;
 

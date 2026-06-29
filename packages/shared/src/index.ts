@@ -117,9 +117,10 @@ export interface Notification {
 }
 
 export interface CustomClaims {
-  role:     UserRole;
-  brand_id?: string;
-  active?:  boolean;
+  role?:      'authenticated';   // Supabase Postgres 역할용 (Third-Party Auth)
+  user_role?: UserRole;          // 앱 역할 (admin/franchisor/franchisee)
+  brand_id?:  string;
+  active?:    boolean;
 }
 
 export interface Subscription {

@@ -1,0 +1,12 @@
+# Supabase 로컬/CI 설정 — Firebase Third-Party Auth 동기화용
+# 대시보드(방법1) 등록과 동일한 신뢰 설정을 코드로 고정한다.
+# Firebase ID 토큰 검증 기준:
+#   issuer  = https://securetoken.google.com/care-law
+#   audience = care-law
+# (project_id 는 Firebase 프로젝트 ID = VITE_FIREBASE_PROJECT_ID)
+
+project_id = "care-law"
+
+[auth.third_party.firebase]
+enabled = true
+project_id = "care-law"

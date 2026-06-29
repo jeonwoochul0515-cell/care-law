@@ -47,7 +47,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const claims = tokenResult.claims as unknown as CustomClaims;
     set({ claims });
 
-    if (claims.role === 'franchisee') {
+    if ((claims.user_role ?? claims.role) === 'franchisee') {
       const { data } = await supabase
         .from('carelaw_franchisees')
         .select('*')
@@ -78,7 +78,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const claims = tokenResult.claims as unknown as CustomClaims;
 
       let franchisee: Franchisee | null = null;
-      if (claims.role === 'franchisee') {
+      if ((claims.user_role ?? claims.role) === 'franchisee') {
         const { data } = await supabase
           .from('carelaw_franchisees')
           .select('*')

@@ -25,6 +25,17 @@
 ## 작업 분담
 - 기반(토큰/폰트/스펙)은 메인 세션이 직접 구축(일관성). 페이지 리디자인은 app별 병렬 서브에이전트가 MASTER.md 준수해 수행.
 
+## 보안 — 테넌트 격리 (방향 A: Firebase Third-Party Auth + RLS)
+- 점검 결과: RLS는 켜졌으나 정책이 `using(true)`라 anon 키로 전 테넌트 case/message 열람 가능(CRITICAL). 인증 브리지 부재로 `auth.uid()` 미채움.
+- 진행 순서(사용자 승인): **Part A(Supabase에 Firebase 공급자 등록) 먼저 → 활성 확인 후 Part B(클라이언트 토큰 전달) 배포**. A 라이브 전에 B 배포 시 401 위험.
+- Part A: 사용자가 대시보드에서 직접 등록(projectId=`care-law`). 동기화용 `supabase/config.toml` 생성 완료. 사용자가 "A 켰다" 신호 주면 B 적용.
+- Part B(대기 중): `packages/shared/src/index.ts` createClient에 `accessToken` 옵션 추가. getIdToken 실패 시 try/catch로 null 반환(anon 폴백, throw 금지).
+- **[3단계 정책 교체 시 반드시 처리할 메모]** 로그인 전 접근하는 **공개 읽기 경로**는 별도 anon 정책 필요:
+  - `carelaw_brands`: 서브도메인/brand 파라미터로 브랜드 해석(app_name/logo/color) — 비로그인 anon SELECT 허용 유지 필요(현재 `active=true` 정책). 단 owner_email/owner_uid 같은 PII는 공개 뷰로 분리 검토.
+  - 온보딩(초대 토큰 검증)은 Functions 경유라 RLS 영향 적음 — 확인 필요.
+  - 즉 "자기 brand_id/user_uid만" 정책으로 전부 잠그되, 브랜드 공개 조회만 anon 예외를 남길 것.
+- 검증 항목: A/B 브랜드 교차 case/message 0건, 구독 페이지 정상 노출, /brands·/cases 로딩멈춤 해소, **Realtime 채팅 송수신**, Supabase Advisor CRITICAL 해소.
+
 ## 미해결/후속
 - offline.html(franchisee) 내용 미완 — 여력 되면 케어 톤으로.
 - 번들 564KB 경고(admin) — 추후 code-split 고려(이번 범위 아님).

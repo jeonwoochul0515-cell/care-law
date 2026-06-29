@@ -24,7 +24,7 @@ function Guard({ children }: { children: React.ReactNode }) {
     </div>
   );
   if (!user) return <Navigate to="/login" replace />;
-  if (claims?.role !== 'admin') return (
+  if ((claims?.user_role ?? claims?.role) !== 'admin') return (
     <div className="flex h-screen items-center justify-center bg-ink px-6">
       <div className="max-w-xs space-y-3 text-center">
         <p className="font-display text-xl font-bold text-paper">접근 권한이 없어요</p>

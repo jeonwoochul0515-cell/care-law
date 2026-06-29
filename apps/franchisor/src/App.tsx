@@ -23,7 +23,7 @@ function Guard({ children }: { children: React.ReactNode }) {
     </div>
   );
   if (!user) return <Navigate to="/login" replace />;
-  if (claims?.role !== 'franchisor' || !claims?.brand_id) return (
+  if ((claims?.user_role ?? claims?.role) !== 'franchisor' || !claims?.brand_id) return (
     <div className="flex h-screen items-center justify-center bg-ink px-6">
       <div className="text-center max-w-sm space-y-4">
         <FaBalanceScale className="text-gold text-3xl mx-auto" aria-hidden />

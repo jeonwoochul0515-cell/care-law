@@ -133,7 +133,7 @@ export const createInviteLink = onCall(
     const uid = req.auth?.uid;
     if (!uid) throw new HttpsError('unauthenticated', '로그인이 필요합니다.');
 
-    const role    = req.auth?.token?.role;
+    const role    = req.auth?.token?.user_role ?? req.auth?.token?.role;
     const brandId = role === 'franchisor' ? req.auth?.token?.brand_id : req.data.brandId;
     if (!['admin','franchisor'].includes(role ?? '') || !brandId)
       throw new HttpsError('permission-denied', '권한이 없습니다.');
@@ -188,7 +188,7 @@ export const verifyInviteAndSetClaims = onCall(
 
     // Firebase Custom Claims 설정
     await admin.auth().setCustomUserClaims(uid, {
-      role: 'franchisee', brand_id: brandId, active: true,
+      role: 'authenticated', user_role: 'franchisee', brand_id: brandId, active: true,
     });
 
     // Supabase 점주 레코드 upsert
@@ -211,7 +211,7 @@ export const deactivateFranchisee = onCall(
   { region: 'asia-northeast3', cors: true, secrets: ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'] },
   async (req) => {
     const uid    = req.auth?.uid;
-    const role   = req.auth?.token?.role;
+    const role   = req.auth?.token?.user_role ?? req.auth?.token?.role;
     const myBrandId = req.auth?.token?.brand_id;
     if (!uid) throw new HttpsError('unauthenticated', '로그인이 필요합니다.');
 
@@ -221,7 +221,7 @@ export const deactivateFranchisee = onCall(
       throw new HttpsError('permission-denied', '권한이 없습니다.');
 
     await admin.auth().setCustomUserClaims(franchiseeUid, {
-      role: 'franchisee', brand_id: brandId, active: false,
+      role: 'authenticated', user_role: 'franchisee', brand_id: brandId, active: false,
     });
 
     await getSupabase().from('carelaw_franchisees')
@@ -239,7 +239,7 @@ export const activateFranchisee = onCall(
   { region: 'asia-northeast3', cors: true, secrets: ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'] },
   async (req) => {
     const uid    = req.auth?.uid;
-    const role   = req.auth?.token?.role;
+    const role   = req.auth?.token?.user_role ?? req.auth?.token?.role;
     const myBrandId = req.auth?.token?.brand_id;
     if (!uid) throw new HttpsError('unauthenticated', '로그인이 필요합니다.');
 
@@ -249,7 +249,7 @@ export const activateFranchisee = onCall(
       throw new HttpsError('permission-denied', '권한이 없습니다.');
 
     await admin.auth().setCustomUserClaims(franchiseeUid, {
-      role: 'franchisee', brand_id: brandId, active: true,
+      role: 'authenticated', user_role: 'franchisee', brand_id: brandId, active: true,
     });
 
     await getSupabase().from('carelaw_franchisees')
@@ -277,7 +277,7 @@ export const autoDeactivateExpired = onSchedule(
 
     for (const f of expired) {
       await admin.auth().setCustomUserClaims(f.uid, {
-        role: 'franchisee', brand_id: f.brand_id, active: false,
+        role: 'authenticated', user_role: 'franchisee', brand_id: f.brand_id, active: false,
       });
     }
 
@@ -331,7 +331,7 @@ export const classifyCase = onCall(
 export const createBrand = onCall(
   { region: 'asia-northeast3', cors: true, secrets: ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'] },
   async (req) => {
-    if (req.auth?.token?.role !== 'admin')
+    if ((req.auth?.token?.user_role ?? req.auth?.token?.role) !== 'admin')
       throw new HttpsError('permission-denied', '어드민만 브랜드를 생성할 수 있습니다.');
 
     const { name, appName, subdomain, ownerEmail, ownerPassword, plan, primaryColor } = req.data as {
@@ -376,7 +376,7 @@ export const createBrand = onCall(
 
     // Custom Claims 설정
     await admin.auth().setCustomUserClaims(ownerUser.uid, {
-      role: 'franchisor', brand_id: brand.id,
+      role: 'authenticated', user_role: 'franchisor', brand_id: brand.id, active: true,
     });
 
     // 구독 레코드 생성
@@ -394,7 +394,7 @@ export const createBrand = onCall(
 export const updateBrand = onCall(
   { region: 'asia-northeast3', cors: true, secrets: ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'] },
   async (req) => {
-    if (req.auth?.token?.role !== 'admin')
+    if ((req.auth?.token?.user_role ?? req.auth?.token?.role) !== 'admin')
       throw new HttpsError('permission-denied', '어드민만 브랜드를 수정할 수 있습니다.');
 
     const { brandId, ...updates } = req.data as {
@@ -436,7 +436,7 @@ export const uploadLogo = onCall(
     const uid = req.auth?.uid;
     if (!uid) throw new HttpsError('unauthenticated', '로그인이 필요합니다.');
 
-    const role = req.auth?.token?.role;
+    const role = req.auth?.token?.user_role ?? req.auth?.token?.role;
     const brandId = req.auth?.token?.brand_id;
     if (!['admin', 'franchisor'].includes(role ?? '') || !brandId)
       throw new HttpsError('permission-denied', '권한이 없습니다.');

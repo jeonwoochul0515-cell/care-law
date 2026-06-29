@@ -90,7 +90,7 @@ function Guard({ children }: { children: React.ReactNode }) {
     </div>
   );
   if (!user) return <Navigate to="/onboard" replace />;
-  if (claims?.role !== 'franchisee') return <Navigate to="/onboard" replace />;
+  if ((claims?.user_role ?? claims?.role) !== 'franchisee') return <Navigate to="/onboard" replace />;
   if (claims?.active === false) return <Navigate to="/locked" replace />;
   return <>{children}</>;
 }

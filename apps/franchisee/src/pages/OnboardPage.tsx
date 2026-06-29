@@ -29,7 +29,7 @@ export default function OnboardPage() {
   }, [bl]);
 
   useEffect(() => {
-    if (user && claims?.role === 'franchisee' && claims.active) {
+    if (user && (claims?.user_role ?? claims?.role) === 'franchisee' && claims?.active) {
       navigate('/', { replace: true });
     }
   }, [user, claims]);

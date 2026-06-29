@@ -15,7 +15,6 @@ export default function BookingPage() {
   const { brand }  = useBrandStore();
   const brandColor = brand?.primary_color ?? '#1E2D4E';
   const brandName  = brand?.app_name ?? '케어로';
-  const logoUrl    = brand?.logo_url;
 
   /* 현재는 모든 브랜드가 동일 법률사무소 사용 — 향후 브랜드별 설정 확장 가능 */
   const phone       = DEFAULT_PHONE;
@@ -50,93 +49,78 @@ export default function BookingPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-paper">
       {/* ── 헤더 ── */}
-      <header className="text-white px-4 pt-12 pb-5 safe-top" style={{ background: brandColor }}>
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="p-2 -ml-2">
-            <FaArrowLeft className="text-white/80" />
+      <header className="bg-paper-raised border-b border-line safe-top">
+        <div className="px-3 pb-3 pt-1 flex items-center gap-2">
+          <button onClick={() => navigate(-1)} aria-label="뒤로 가기"
+                  className="w-10 h-10 flex items-center justify-center rounded-lg text-ink-soft hover:bg-paper-sunken transition-colors">
+            <FaArrowLeft />
           </button>
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            {logoUrl ? (
-              <img src={logoUrl} alt={brandName} className="w-8 h-8 rounded-lg object-contain bg-white/20 flex-shrink-0" />
-            ) : null}
-            <div className="min-w-0">
-              <h1 className="font-bold text-lg truncate">{brandName} 변호사 상담</h1>
-              <p className="text-white/60 text-xs">케어로 제휴 법률사무소</p>
-            </div>
+          <div className="min-w-0">
+            <p className="cl-eyebrow cl-eyebrow-gold">변호사 상담</p>
+            <h1 className="cl-display text-xl truncate">{brandName} 법률 상담</h1>
           </div>
         </div>
       </header>
 
       <main className="flex-1 px-4 py-5 space-y-4">
         {/* ── 제휴 법률사무소 소개 카드 ── */}
-        <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+        <div className="cl-card p-5">
           <div className="flex items-center gap-4">
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: `${brandColor}15` }}
-            >
-              <FaBalanceScale style={{ color: brandColor }} className="text-2xl" />
+            <div className="w-16 h-16 rounded-lg flex items-center justify-center flex-shrink-0 bg-gold-soft">
+              <FaBalanceScale className="text-gold text-2xl" aria-hidden />
             </div>
             <div className="min-w-0">
-              <p className="font-bold text-gray-900">{lawyerName}</p>
-              <p className="text-gray-500 text-xs mt-0.5">{firmName} 대표변호사</p>
-              <p className="text-gray-400 text-xs mt-0.5">{credentials}</p>
+              <p className="cl-display text-lg">{lawyerName}</p>
+              <p className="text-ink-soft text-sm mt-0.5">{firmName} 대표변호사</p>
+              <p className="text-ink-mute text-xs mt-0.5">{credentials}</p>
             </div>
           </div>
-          <div
-            className="mt-3 px-3 py-2 rounded-xl text-xs"
-            style={{ background: `${brandColor}08` }}
-          >
-            <span className="font-semibold" style={{ color: brandColor }}>케어로 제휴</span>
-            <span className="text-gray-500 ml-1">
-              — {brandName} 가맹점주 전용 법률 상담 서비스
-            </span>
+          <div className="mt-4 px-3.5 py-2.5 rounded-md bg-paper-sunken text-sm">
+            <span className="cl-badge cl-badge-gold mr-1.5">케어로 제휴</span>
+            <span className="text-ink-soft">{brandName} 가맹점주 전용 상담입니다.</span>
           </div>
         </div>
 
         {/* ── 예약 방법 ── */}
-        <p className="text-gray-500 text-xs font-semibold tracking-wider">예약 방법 선택</p>
-        {bookingOptions.map(({ icon: Icon, title, sub, action, cta }) => (
-          <button
-            key={title}
-            onClick={action}
-            className="w-full bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center gap-4 active:scale-[0.98] transition-transform text-left"
-          >
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: `${brandColor}15` }}
+        <p className="cl-eyebrow px-1 pt-1">상담 방법 선택</p>
+        <div className="space-y-3">
+          {bookingOptions.map(({ icon: Icon, title, sub, action, cta }) => (
+            <button
+              key={title}
+              onClick={action}
+              className="cl-card w-full p-4 flex items-center gap-4 active:translate-y-px transition-transform text-left"
             >
-              <Icon style={{ color: brandColor }} className="text-xl" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-gray-900 text-sm">{title}</p>
-              <p className="text-gray-400 text-xs mt-0.5">{sub}</p>
-            </div>
-            <div
-              className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full flex-shrink-0"
-              style={{ background: `${brandColor}15`, color: brandColor }}
-            >
-              {cta} <FaExternalLinkAlt className="text-[10px]" />
-            </div>
-          </button>
-        ))}
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 bg-paper-sunken">
+                <Icon style={{ color: brandColor }} className="text-xl" aria-hidden />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-ink text-sm">{title}</p>
+                <p className="text-ink-mute text-xs mt-0.5">{sub}</p>
+              </div>
+              <span className="flex items-center gap-1 text-sm font-semibold flex-shrink-0" style={{ color: brandColor }}>
+                {cta} <FaExternalLinkAlt className="text-[10px]" aria-hidden />
+              </span>
+            </button>
+          ))}
+        </div>
 
         {/* ── 안내 ── */}
-        <div className="rounded-2xl p-4 border" style={{ background: `${brandColor}08`, borderColor: `${brandColor}20` }}>
-          <p className="text-xs font-bold mb-2" style={{ color: brandColor }}>
-            상담 전 준비사항
-          </p>
-          {[
-            '관련 계약서나 서류가 있으면 미리 준비해주세요',
-            '상황을 간략히 정리해두면 상담 시간이 절약됩니다',
-            'AI 상담 내역이 있으면 변호사가 참고합니다',
-          ].map((t, i) => (
-            <p key={i} className="text-xs mt-1.5" style={{ color: `${brandColor}CC` }}>
-              • {t}
-            </p>
-          ))}
+        <div className="cl-card-sunken p-4">
+          <p className="font-semibold text-sm mb-2.5 text-ink">상담 전 이것만 준비하면 충분해요</p>
+          <ul className="space-y-1.5">
+            {[
+              '관련 계약서나 서류가 있으면 곁에 두세요',
+              '상황을 한두 줄로 정리해 두면 상담이 빨라져요',
+              'AI 상담 내역이 있으면 변호사가 미리 살펴봅니다',
+            ].map((t, i) => (
+              <li key={i} className="text-sm text-ink-soft flex gap-2">
+                <span className="text-gold mt-px" aria-hidden>·</span>
+                <span>{t}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </main>
     </div>

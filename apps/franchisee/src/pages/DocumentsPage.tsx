@@ -54,9 +54,9 @@ function parseAttachments(raw: string[]): Attachment[] {
 }
 
 function fileIcon(type: string) {
-  if (type === 'application/pdf') return <FaFilePdf className="text-red-400" />;
-  if (type.startsWith('image/')) return <FaFileImage className="text-blue-400" />;
-  return <FaFileAlt className="text-gray-400" />;
+  if (type === 'application/pdf') return <FaFilePdf className="text-danger" aria-hidden />;
+  if (type.startsWith('image/')) return <FaFileImage className="text-gold" aria-hidden />;
+  return <FaFileAlt className="text-ink-mute" aria-hidden />;
 }
 
 function formatFileSize(bytes: number): string {
@@ -206,7 +206,7 @@ export default function DocumentsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-paper">
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -217,19 +217,18 @@ export default function DocumentsPage() {
       />
 
       {/* Header */}
-      <header
-        className="text-white px-4 pt-12 pb-4 safe-top"
-        style={{ background: brandColor }}
-      >
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="p-2 -ml-2">
-            <FaArrowLeft className="text-white/80" />
+      <header className="bg-paper-raised border-b border-line safe-top">
+        <div className="px-3 pb-3 pt-1 flex items-center gap-2">
+          <button onClick={() => navigate(-1)} aria-label="뒤로 가기"
+                  className="w-10 h-10 flex items-center justify-center rounded-lg text-ink-soft hover:bg-paper-sunken transition-colors">
+            <FaArrowLeft />
           </button>
           <div>
-            <h1 className="font-bold text-lg">문서 관리</h1>
+            <p className="cl-eyebrow cl-eyebrow-gold">계약서·증거자료</p>
+            <h1 className="cl-display text-xl">문서 보관함</h1>
             {!loading && (
-              <p className="text-white/60 text-xs mt-0.5">
-                {cases.length}건의 케이스 · {totalAttachments}개 문서
+              <p className="text-ink-mute text-xs mt-0.5 cl-num">
+                케이스 {cases.length}건 · 문서 {totalAttachments}개
               </p>
             )}
           </div>
@@ -241,40 +240,30 @@ export default function DocumentsPage() {
         <button
           onClick={handleGlobalUpload}
           disabled={uploading}
-          className="w-full bg-white border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center gap-2 active:scale-[0.98] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-paper-raised border border-dashed border-line-strong rounded-lg p-6 flex flex-col items-center gap-2.5 active:translate-y-px transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center"
-            style={{ background: brandColor + '15' }}
-          >
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-gold-soft">
             {uploading ? (
-              <FaSpinner
-                className="text-xl animate-spin"
-                style={{ color: brandColor }}
-              />
+              <FaSpinner className="text-xl animate-spin text-gold" aria-hidden />
             ) : (
-              <FaUpload style={{ color: brandColor }} className="text-xl" />
+              <FaUpload className="text-xl text-gold" aria-hidden />
             )}
           </div>
-          <p className="font-bold text-gray-700 text-sm">
-            {uploading ? '업로드 중...' : '문서 업로드'}
+          <p className="font-semibold text-ink text-sm">
+            {uploading ? '올리는 중이에요…' : '문서 올리기'}
           </p>
-          <p className="text-gray-400 text-xs">
+          <p className="text-ink-mute text-xs">
             계약서·증거자료 PDF, 이미지 · 최대 10MB
           </p>
         </button>
 
         {/* Upload error */}
         {uploadError && (
-          <div className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-start gap-3">
-            <FaExclamationTriangle className="text-red-400 mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="text-red-700 text-xs leading-relaxed">{uploadError}</p>
-            </div>
-            <button
-              onClick={() => setUploadError(null)}
-              className="text-red-300 hover:text-red-500"
-            >
+          <div className="bg-danger-soft border border-danger/20 rounded-lg p-4 flex items-start gap-3" role="alert">
+            <FaExclamationTriangle className="text-danger mt-0.5 flex-shrink-0" aria-hidden />
+            <p className="flex-1 text-danger text-sm leading-relaxed">{uploadError}</p>
+            <button onClick={() => setUploadError(null)} aria-label="닫기"
+                    className="text-danger/50 hover:text-danger">
               <FaTimes className="text-xs" />
             </button>
           </div>
@@ -282,15 +271,11 @@ export default function DocumentsPage() {
 
         {/* Upload success */}
         {uploadSuccess && (
-          <div className="bg-green-50 border border-green-100 rounded-2xl p-4 flex items-start gap-3">
-            <FaFileAlt className="text-green-500 mt-0.5 flex-shrink-0" />
-            <p className="text-green-700 text-xs leading-relaxed flex-1">
-              {uploadSuccess}
-            </p>
-            <button
-              onClick={() => setUploadSuccess(null)}
-              className="text-green-300 hover:text-green-500"
-            >
+          <div className="bg-success-soft border border-success/20 rounded-lg p-4 flex items-start gap-3" role="status">
+            <FaFileAlt className="text-success mt-0.5 flex-shrink-0" aria-hidden />
+            <p className="text-success text-sm leading-relaxed flex-1">{uploadSuccess}</p>
+            <button onClick={() => setUploadSuccess(null)} aria-label="닫기"
+                    className="text-success/50 hover:text-success">
               <FaTimes className="text-xs" />
             </button>
           </div>
@@ -298,19 +283,14 @@ export default function DocumentsPage() {
 
         {/* Case picker modal */}
         {showCasePicker && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-50 flex items-center justify-between">
-              <p className="font-bold text-gray-900 text-sm">
-                케이스를 선택하세요
-              </p>
-              <button
-                onClick={() => setShowCasePicker(false)}
-                className="text-gray-400"
-              >
+          <div className="cl-card overflow-hidden">
+            <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+              <p className="font-semibold text-ink text-sm">어느 케이스에 넣을까요?</p>
+              <button onClick={() => setShowCasePicker(false)} aria-label="닫기" className="text-ink-mute hover:text-ink-soft">
                 <FaTimes />
               </button>
             </div>
-            <div className="max-h-60 overflow-y-auto">
+            <div className="max-h-60 overflow-y-auto divide-y divide-line">
               {cases.map((c) => (
                 <button
                   key={c.id}
@@ -318,12 +298,10 @@ export default function DocumentsPage() {
                     setShowCasePicker(false);
                     startUpload(c.id);
                   }}
-                  className="w-full text-left px-4 py-3 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                  className="w-full text-left px-4 py-3 hover:bg-paper-sunken active:bg-paper-sunken transition-colors"
                 >
-                  <p className="font-medium text-gray-900 text-sm truncate">
-                    {c.title}
-                  </p>
-                  <p className="text-gray-400 text-xs mt-0.5">
+                  <p className="font-medium text-ink text-sm truncate">{c.title}</p>
+                  <p className="text-ink-mute text-xs mt-0.5">
                     {CASE_TYPE_LABELS[c.type]} · {CASE_STATUS_LABELS[c.status]}
                   </p>
                 </button>
@@ -333,146 +311,110 @@ export default function DocumentsPage() {
         )}
 
         {/* AI analysis info */}
-        <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: brandColor + '15' }}
-            >
-              <FaFileAlt style={{ color: brandColor }} />
+        <div className="cl-card-sunken p-4">
+          <div className="flex items-center gap-3 mb-2.5">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gold-soft">
+              <FaFileAlt className="text-gold" aria-hidden />
             </div>
             <div>
-              <p className="font-bold text-gray-900 text-sm">AI 계약서 분석</p>
-              <p className="text-gray-400 text-xs">위험 조항 자동 감지</p>
+              <p className="font-semibold text-ink text-sm">AI 계약서 살펴보기</p>
+              <p className="text-ink-mute text-xs">주의할 조항을 미리 짚어 드려요</p>
             </div>
           </div>
-          <p className="text-gray-500 text-xs leading-relaxed">
-            계약서를 업로드하면 AI가 불리한 조항, 주의할 내용을 자동으로
-            분석해드립니다.
+          <p className="text-ink-soft text-sm leading-relaxed">
+            계약서를 올리면 불리할 수 있는 조항과 챙겨야 할 부분을 AI가 정리해 드립니다.
           </p>
         </div>
 
         {/* Loading state */}
         {loading ? (
-          <div className="flex justify-center py-10">
-            <div className="w-8 h-8 border-4 rounded-full border-gray-200 border-t-gray-400 animate-spin" />
+          <div className="space-y-3">
+            {[0, 1].map(i => (
+              <div key={i} className="cl-card p-4">
+                <div className="cl-skeleton h-4 w-1/2 mb-2.5" />
+                <div className="cl-skeleton h-3 w-1/3" />
+              </div>
+            ))}
           </div>
         ) : cases.length === 0 ? (
           /* Empty state */
-          <div className="flex flex-col items-center justify-center py-12 gap-4">
-            <FaFileAlt className="text-4xl text-gray-200" />
-            <p className="text-gray-400 text-sm text-center">
-              아직 케이스가 없습니다
-              <br />
-              AI 상담을 시작하면 문서를 첨부할 수 있습니다
-            </p>
-            <button
-              onClick={() => navigate('/chat')}
-              className="text-white text-sm font-bold px-5 py-3 rounded-2xl"
-              style={{ background: brandColor }}
-            >
-              AI 상담 시작하기
+          <div className="flex flex-col items-center justify-center py-12 px-6 gap-4 text-center">
+            <div className="w-14 h-14 rounded-full bg-gold-soft flex items-center justify-center">
+              <FaFileAlt className="text-2xl text-gold" aria-hidden />
+            </div>
+            <div>
+              <p className="cl-display text-lg">아직 보관된 문서가 없어요</p>
+              <p className="text-ink-soft text-sm mt-1.5 leading-relaxed">
+                상담을 시작하면 그 케이스에<br />계약서와 자료를 안전하게 모아 둘 수 있어요.
+              </p>
+            </div>
+            <button onClick={() => navigate('/chat')} className="cl-btn cl-btn-primary mt-1">
+              상담 시작하기
             </button>
           </div>
         ) : (
           /* Cases with documents */
           <div className="space-y-3">
-            <p className="text-gray-500 text-xs font-medium px-1">
-              케이스별 첨부 문서
-            </p>
+            <p className="cl-eyebrow px-1">케이스별 첨부 문서</p>
             {cases.map((c) => {
               const attachments = parseAttachments(c.attachments);
               const isExpanded = expandedCase === c.id;
 
               return (
-                <div
-                  key={c.id}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-                >
+                <div key={c.id} className="cl-card overflow-hidden">
                   {/* Case header */}
                   <button
-                    onClick={() =>
-                      setExpandedCase(isExpanded ? null : c.id)
-                    }
-                    className="w-full text-left px-4 py-3 flex items-center justify-between"
+                    onClick={() => setExpandedCase(isExpanded ? null : c.id)}
+                    aria-expanded={isExpanded}
+                    className="w-full text-left px-4 py-3.5 flex items-center justify-between"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="font-bold text-gray-900 text-sm truncate">
-                          {c.title}
-                        </p>
+                        <p className="font-semibold text-ink text-sm truncate">{c.title}</p>
                         {attachments.length > 0 && (
-                          <span
-                            className="text-xs px-1.5 py-0.5 rounded-full font-medium flex-shrink-0"
-                            style={{
-                              background: brandColor + '15',
-                              color: brandColor,
-                            }}
-                          >
+                          <span className="cl-badge cl-badge-gold flex-shrink-0 cl-num">
                             {attachments.length}
                           </span>
                         )}
                       </div>
-                      <p className="text-gray-400 text-xs mt-0.5">
+                      <p className="text-ink-mute text-xs mt-0.5 cl-num">
                         {CASE_TYPE_LABELS[c.type]} ·{' '}
-                        {format(parseISO(c.created_at), 'yyyy.MM.dd', {
-                          locale: ko,
-                        })}
+                        {format(parseISO(c.created_at), 'yyyy.MM.dd', { locale: ko })}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {isExpanded ? (
-                        <FaChevronUp className="text-gray-300 text-xs" />
-                      ) : (
-                        <FaChevronDown className="text-gray-300 text-xs" />
-                      )}
+                    <div className="flex items-center gap-2 flex-shrink-0 text-ink-mute">
+                      {isExpanded ? <FaChevronUp className="text-xs" /> : <FaChevronDown className="text-xs" />}
                     </div>
                   </button>
 
                   {/* Expanded: attachments + upload */}
                   {isExpanded && (
-                    <div className="border-t border-gray-50 px-4 py-3 space-y-2">
+                    <div className="border-t border-line px-4 py-3 space-y-2">
                       {attachments.length === 0 ? (
-                        <p className="text-gray-300 text-xs text-center py-3">
-                          첨부된 문서가 없습니다
+                        <p className="text-ink-mute text-sm text-center py-3">
+                          이 케이스엔 아직 문서가 없어요
                         </p>
                       ) : (
                         attachments.map((att, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-center gap-3 bg-gray-50 rounded-xl px-3 py-2.5"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center flex-shrink-0 border border-gray-100">
+                          <div key={idx} className="flex items-center gap-3 bg-paper-sunken rounded-md px-3 py-2.5">
+                            <div className="w-8 h-8 rounded-md bg-paper-raised flex items-center justify-center flex-shrink-0 border border-line">
                               {fileIcon(att.type)}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-gray-800 text-xs font-medium truncate">
-                                {att.name}
-                              </p>
+                              <p className="text-ink text-sm font-medium truncate">{att.name}</p>
                               {att.uploadedAt && (
-                                <p className="text-gray-400 text-[10px] mt-0.5">
-                                  {format(
-                                    parseISO(att.uploadedAt),
-                                    'yyyy.MM.dd HH:mm',
-                                    { locale: ko }
-                                  )}
+                                <p className="text-ink-mute text-2xs mt-0.5 cl-num">
+                                  {format(parseISO(att.uploadedAt), 'yyyy.MM.dd HH:mm', { locale: ko })}
                                 </p>
                               )}
                             </div>
                             <div className="flex items-center gap-1 flex-shrink-0">
-                              <button
-                                onClick={() => handlePreview(att.url)}
-                                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                                title="미리보기"
-                              >
+                              <button onClick={() => handlePreview(att.url)} aria-label="미리보기"
+                                      className="p-2 text-ink-mute hover:text-ink-soft transition-colors">
                                 <FaEye className="text-xs" />
                               </button>
-                              <a
-                                href={att.url}
-                                download={att.name}
-                                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                                title="다운로드"
-                              >
+                              <a href={att.url} download={att.name} aria-label="다운로드"
+                                 className="p-2 text-ink-mute hover:text-ink-soft transition-colors">
                                 <FaDownload className="text-xs" />
                               </a>
                             </div>
@@ -484,19 +426,12 @@ export default function DocumentsPage() {
                       <button
                         onClick={() => startUpload(c.id)}
                         disabled={uploading}
-                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-gray-200 text-xs font-medium transition-colors hover:border-gray-300 disabled:opacity-50"
-                        style={{ color: brandColor }}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md border border-dashed border-line-strong text-sm font-medium text-ink-soft transition-colors hover:border-ink-mute disabled:opacity-50"
                       >
                         {uploading && selectedCaseId === c.id ? (
-                          <>
-                            <FaSpinner className="animate-spin" />
-                            업로드 중...
-                          </>
+                          <><FaSpinner className="animate-spin" aria-hidden /> 올리는 중…</>
                         ) : (
-                          <>
-                            <FaUpload />
-                            이 케이스에 문서 첨부
-                          </>
+                          <><FaUpload aria-hidden /> 이 케이스에 문서 넣기</>
                         )}
                       </button>
                     </div>
@@ -508,11 +443,10 @@ export default function DocumentsPage() {
         )}
 
         {/* Security notice */}
-        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex items-start gap-3">
-          <FaLock className="text-gray-400 mt-0.5 flex-shrink-0" />
-          <p className="text-gray-500 text-xs leading-relaxed">
-            업로드된 문서는 암호화 저장되며, 담당 변호사 외에는 열람할 수
-            없습니다.
+        <div className="cl-card-sunken p-4 flex items-start gap-3">
+          <FaLock className="text-ink-mute mt-0.5 flex-shrink-0" aria-hidden />
+          <p className="text-ink-soft text-sm leading-relaxed">
+            올려 주신 문서는 암호화해 보관하며, 담당 변호사 외에는 누구도 열어볼 수 없어요.
           </p>
         </div>
       </main>

@@ -233,36 +233,47 @@ export default function ChatPage() {
 
   const brandColor = brand?.primary_color ?? '#1E2D4E';
 
+  const Avatar = () => (
+    <div className="w-8 h-8 rounded-full bg-gold-soft flex items-center justify-center flex-shrink-0 self-start"
+         aria-hidden>
+      <span className="cl-display text-gold text-sm leading-none">곁</span>
+    </div>
+  );
+
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      {/* ── 헤더 ── */}
-      <header className="text-white px-4 pt-12 pb-3 flex items-center gap-3"
-              style={{ background: brandColor }}>
-        <button onClick={() => navigate(-1)} className="p-2 -ml-2">
-          <FaArrowLeft className="text-white/80" />
-        </button>
-        <div className="flex-1 flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-[#C9A84C] flex items-center justify-center text-xs font-bold text-[#1E2D4E]">C</div>
-          <div>
-            <p className="font-bold text-sm">AI 법률 상담</p>
-            <p className="text-white/60 text-xs">● 온라인 · 24시간</p>
+    <div className="flex flex-col h-screen bg-paper">
+      {/* ── 헤더 (아이보리 + 금색 아바타) ── */}
+      <header className="bg-paper-raised border-b border-line safe-top">
+        <div className="px-3 pb-3 flex items-center gap-2">
+          <button onClick={() => navigate(-1)} aria-label="뒤로 가기"
+                  className="w-10 h-10 flex items-center justify-center rounded-lg text-ink-soft hover:bg-paper-sunken transition-colors">
+            <FaArrowLeft />
+          </button>
+          <div className="flex-1 flex items-center gap-2.5 min-w-0">
+            <Avatar />
+            <div className="min-w-0">
+              <p className="font-semibold text-sm text-ink">AI 법률 도우미</p>
+              <p className="text-ink-mute text-xs flex items-center gap-1.5">
+                <span className="cl-dot bg-success" aria-hidden /> 언제든 함께해요
+              </p>
+            </div>
           </div>
+          <button onClick={() => navigate('/booking')}
+                  className="cl-btn cl-btn-gold cl-btn-sm flex-shrink-0">
+            <FaCalendarAlt className="text-xs" aria-hidden /> 변호사 예약
+          </button>
         </div>
-        <button onClick={() => navigate('/booking')}
-                className="flex items-center gap-1 bg-[#C9A84C] text-[#1E2D4E] text-xs font-bold px-3 py-1.5 rounded-full">
-          <FaCalendarAlt className="text-xs" /> 변호사 예약
-        </button>
       </header>
 
       {/* ── 메시지 영역 ── */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+      <div className="flex-1 overflow-y-auto px-4 py-5 flex flex-col gap-3.5">
         {caseError && (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <p className="text-red-500 text-sm mb-3">{caseError}</p>
+            <div className="text-center px-6">
+              <p className="text-ink-soft text-sm mb-4 leading-relaxed" role="alert">{caseError}</p>
               <button onClick={() => { setCaseError(''); setCaseId(''); }}
-                      className="text-sm text-white px-4 py-2 rounded-xl" style={{ background: brandColor }}>
-                다시 시도
+                      className="cl-btn cl-btn-primary">
+                다시 시도하기
               </button>
             </div>
           </div>
@@ -270,11 +281,15 @@ export default function ChatPage() {
 
         {/* 빈 상태 안내 메시지 */}
         {!caseError && allMessages.length === 0 && !aiTyping && (
-          <div className="flex gap-2 items-start">
-            <div className="w-8 h-8 rounded-full bg-[#C9A84C] flex items-center justify-center text-xs font-bold text-[#1E2D4E] flex-shrink-0">C</div>
-            <div className="bg-white rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%] shadow-sm border border-gray-100">
-              <p className="text-gray-800 text-sm leading-relaxed">안녕하세요! 법률 문제를 편하게 말씀해 주세요.<br />어떤 어려움이 있으신가요?</p>
-              <p className="text-gray-400 text-xs mt-2">※ 이 답변은 법률 자문이 아닌 일반 정보입니다</p>
+          <div className="flex gap-2 items-start animation-fade-up">
+            <Avatar />
+            <div className="cl-card rounded-tl-sm px-4 py-3.5 max-w-[82%]">
+              <p className="text-ink text-base leading-relaxed">
+                안녕하세요. 어떤 일로 마음이 무거우신가요?<br />편하게 말씀해 주시면 차근차근 함께 살펴볼게요.
+              </p>
+              <p className="text-ink-mute text-xs mt-2.5 pt-2.5 border-t border-line">
+                안내드리는 내용은 일반 정보이며, 법률 자문은 변호사 상담으로 확인해 주세요.
+              </p>
             </div>
           </div>
         )}
@@ -285,27 +300,23 @@ export default function ChatPage() {
           const isTemp = msg.id.startsWith(TEMP_PREFIX);
           return (
             <div key={msg.id} className={`flex gap-2 items-end ${isUser ? 'flex-row-reverse' : ''}`}>
-              {/* AI 아바타 */}
-              {!isUser && (
-                <div className="w-8 h-8 rounded-full bg-[#C9A84C] flex items-center justify-center text-xs font-bold text-[#1E2D4E] flex-shrink-0 self-start">C</div>
-              )}
-              {/* 타임스탬프 (버블 안쪽) + 메시지 */}
-              <div className="flex flex-col gap-0.5" style={{ maxWidth: '80%' }}>
-                <div className={`rounded-2xl px-4 py-3 shadow-sm text-sm leading-relaxed whitespace-pre-wrap ${
+              {!isUser && <Avatar />}
+              <div className="flex flex-col gap-1" style={{ maxWidth: '82%' }}>
+                <div className={`px-4 py-3 text-base leading-relaxed whitespace-pre-wrap rounded-lg ${
                   isUser
-                    ? 'text-white rounded-tr-none'
-                    : 'bg-white text-gray-800 rounded-tl-none border border-gray-100'
+                    ? 'text-white rounded-br-sm shadow-card'
+                    : 'cl-card text-ink rounded-tl-sm'
                 } ${isTemp ? 'opacity-70' : ''}`}
                   style={isUser ? { background: brandColor } : undefined}
                 >
                   {msg.content.startsWith('📎') && msg.content.includes('[첨부파일:') ? (
-                    <div className="flex items-center gap-2">
-                      <FaPaperclip className="text-xs opacity-60" />
-                      <span>{msg.content}</span>
-                    </div>
+                    <span className="flex items-center gap-2">
+                      <FaPaperclip className="text-xs opacity-70" aria-hidden />
+                      <span>{msg.content.replace(/^📎\s*/, '')}</span>
+                    </span>
                   ) : msg.content}
                 </div>
-                <span className={`text-[10px] text-gray-400 ${isUser ? 'text-right' : 'text-left'}`}>
+                <span className={`text-2xs text-ink-mute cl-num ${isUser ? 'text-right' : 'text-left'}`}>
                   {formatTime(msg.created_at)}
                 </span>
               </div>
@@ -316,12 +327,12 @@ export default function ChatPage() {
         {/* AI 타이핑 인디케이터 */}
         {aiTyping && (
           <div className="flex gap-2 items-end">
-            <div className="w-8 h-8 rounded-full bg-[#C9A84C] flex items-center justify-center text-xs font-bold text-[#1E2D4E] flex-shrink-0 self-start">C</div>
-            <div className="bg-white rounded-2xl rounded-tl-none px-4 py-3 border border-gray-100 shadow-sm">
-              <div className="flex gap-1 items-center h-4">
+            <Avatar />
+            <div className="cl-card rounded-tl-sm px-4 py-3.5">
+              <div className="flex gap-1.5 items-center h-3" aria-label="입력 중">
                 {[0, 1, 2].map(i => (
-                  <div key={i} className="w-2 h-2 rounded-full bg-gray-300 animate-bounce"
-                       style={{ animationDelay: `${i * 0.15}s` }} />
+                  <span key={i} className="w-2 h-2 rounded-full bg-ink-mute animation-dot-bounce"
+                       style={{ animationDelay: `${i * 0.16}s` }} />
                 ))}
               </div>
             </div>
@@ -332,42 +343,45 @@ export default function ChatPage() {
 
       {/* ── 첨부 메뉴 ── */}
       {showAttach && (
-        <div className="bg-white border-t border-gray-100 px-4 py-3 flex gap-3">
+        <div className="bg-paper-raised border-t border-line px-4 py-3 flex gap-3 animation-fade-up">
           <button onClick={() => { setShowAttach(false); cameraRef.current?.click(); }}
-                  className="flex-1 flex flex-col items-center gap-1 py-3 bg-gray-50 rounded-xl">
-            <FaCamera className="text-lg" style={{ color: brandColor }} />
-            <span className="text-xs text-gray-600">카메라</span>
+                  className="flex-1 flex flex-col items-center gap-1.5 py-3 bg-paper-sunken rounded-lg border border-line">
+            <FaCamera className="text-lg" style={{ color: brandColor }} aria-hidden />
+            <span className="text-xs text-ink-soft font-medium">카메라</span>
           </button>
           <button onClick={() => { setShowAttach(false); fileRef.current?.click(); }}
-                  className="flex-1 flex flex-col items-center gap-1 py-3 bg-gray-50 rounded-xl">
-            <FaPaperclip className="text-lg" style={{ color: brandColor }} />
-            <span className="text-xs text-gray-600">파일/사진</span>
+                  className="flex-1 flex flex-col items-center gap-1.5 py-3 bg-paper-sunken rounded-lg border border-line">
+            <FaPaperclip className="text-lg" style={{ color: brandColor }} aria-hidden />
+            <span className="text-xs text-ink-soft font-medium">파일·사진</span>
           </button>
         </div>
       )}
 
       {/* ── 입력 영역 ── */}
-      <div className="bg-white border-t border-gray-100 px-4 py-3">
+      <div className="bg-paper-raised border-t border-line px-4 pt-3 safe-bottom">
         {sendError && (
-          <p className="text-red-500 text-xs text-center mb-2">{sendError}</p>
+          <p className="text-danger text-sm text-center mb-2" role="alert">{sendError}</p>
         )}
         <div className="flex gap-2 items-end">
           <button onClick={() => setShowAttach(!showAttach)}
-                  className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-gray-100">
-            <FaPaperclip className="text-gray-500 text-sm" />
+                  aria-label="첨부하기"
+                  className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-paper-sunken text-ink-soft hover:bg-line transition-colors">
+            <FaPaperclip className="text-sm" />
           </button>
           <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-            placeholder="법률 문제를 입력하세요..."
+            placeholder="편하게 말씀해 주세요…"
             rows={1}
-            className="flex-1 resize-none bg-gray-50 rounded-2xl px-4 py-3 text-sm outline-none border border-gray-200 max-h-32"
+            aria-label="메시지 입력"
+            className="cl-input flex-1 max-h-32 !min-h-[2.75rem] py-3 rounded-xl"
           />
           <button onClick={sendMessage} disabled={!input.trim()}
-                  className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-40"
+                  aria-label="보내기"
+                  className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-40 transition-opacity"
                   style={{ background: brandColor }}>
-            <FaPaperPlane className="text-[#C9A84C] text-sm" />
+            <FaPaperPlane className="text-gold text-sm" aria-hidden />
           </button>
         </div>
         <input ref={fileRef} type="file" accept="image/*,.pdf" onChange={handleFileChange} className="hidden" />

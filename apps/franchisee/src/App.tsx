@@ -85,9 +85,8 @@ function BrandInjector() {
 function Guard({ children }: { children: React.ReactNode }) {
   const { user, claims, loading } = useAuthStore();
   if (loading) return (
-    <div className="flex h-screen items-center justify-center"
-         style={{ background: 'var(--color-brand, #1E2D4E)' }}>
-      <div className="text-white text-sm animate-pulse">잠시만 기다려 주세요...</div>
+    <div className="flex h-screen items-center justify-center bg-paper">
+      <div className="text-ink-mute text-sm animate-pulse">잠시만 기다려 주세요…</div>
     </div>
   );
   if (!user) return <Navigate to="/onboard" replace />;
@@ -113,19 +112,23 @@ function OfflineBanner() {
   if (!offline) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 9999,
-      background: '#DC2626',
-      color: '#fff',
-      textAlign: 'center',
-      fontSize: '0.8rem',
-      padding: '6px 0',
-    }}>
-      인터넷 연결이 끊어졌습니다
+    <div
+      role="status"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 9999,
+        background: '#B23A2E',
+        color: '#fff',
+        textAlign: 'center',
+        fontSize: '0.8125rem',
+        fontWeight: 600,
+        padding: '7px 12px',
+        paddingTop: 'max(7px, env(safe-area-inset-top))',
+      }}>
+      인터넷 연결이 잠시 끊겼어요. 연결되면 자동으로 이어집니다.
     </div>
   );
 }

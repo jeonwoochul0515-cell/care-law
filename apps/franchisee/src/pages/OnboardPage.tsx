@@ -1,7 +1,9 @@
+// 점주 온보딩 — 로그인/회원가입/초대토큰 검증 흐름 (곁/Care 아트 디렉션)
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '@care-law/shared';
+import { FaCheck, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useBrandStore } from '../store/brandStore';
 import { useAuthStore }  from '../store/authStore';
 
@@ -18,6 +20,7 @@ export default function OnboardPage() {
   const [error, setError]        = useState('');
   const [email, setEmail]        = useState('');
   const [password, setPassword]  = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
 
@@ -68,124 +71,128 @@ export default function OnboardPage() {
     }
   };
 
-  const name = brand?.app_name ?? '호맥생활';
+  const name = brand?.app_name ?? '케어로';
   const logo = brand?.logo_url;
 
   /* ── 로딩 ── */
   if (step === 'loading') return (
-    <div className="relative flex h-screen items-center justify-center overflow-hidden">
-      <img src="/homac-store.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-black/70" />
-      <div className="relative text-white text-sm animate-pulse">잠시만 기다려 주세요...</div>
+    <div className="flex h-screen items-center justify-center bg-paper">
+      <p className="text-ink-mute text-sm animate-pulse">잠시만 기다려 주세요…</p>
     </div>
   );
 
   /* ── 검증 중 ── */
   if (step === 'verifying') return (
-    <div className="relative flex flex-col h-screen items-center justify-center gap-4 overflow-hidden">
-      <img src="/homac-store.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-black/70" />
-      <div className="relative flex flex-col items-center gap-4">
-        <div className="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
-        <p className="text-white text-sm">서비스 등록 중...</p>
-      </div>
+    <div className="flex flex-col h-screen items-center justify-center gap-5 bg-paper px-6">
+      <div className="w-11 h-11 rounded-full border-[3px] border-line-strong border-t-gold animate-spin" />
+      <p className="cl-display text-lg">서비스를 준비하고 있어요</p>
+      <p className="text-ink-mute text-sm">잠시만 기다려 주세요.</p>
     </div>
   );
 
   /* ── 완료 ── */
   if (step === 'done') return (
-    <div className="relative flex flex-col h-screen items-center justify-center gap-4 overflow-hidden">
-      <img src="/homac-store.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-black/70" />
-      <div className="relative flex flex-col items-center gap-4">
-        <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center text-3xl text-white shadow-lg shadow-emerald-500/30">✓</div>
-        <p className="text-white font-bold text-lg">등록 완료!</p>
-        <p className="text-white/60 text-sm">{name}으로 이동 중...</p>
+    <div className="flex flex-col h-screen items-center justify-center gap-4 bg-paper px-6">
+      <div className="w-16 h-16 rounded-full bg-success-soft flex items-center justify-center">
+        <FaCheck className="text-success text-2xl" aria-hidden />
       </div>
+      <p className="cl-display text-xl">준비가 끝났어요</p>
+      <p className="text-ink-soft text-sm">{name}으로 이동합니다.</p>
     </div>
   );
 
-  /* ── 메인: 로그인 폼 ── */
+  /* ── 초대 검증 오류 ── */
+  if (step === 'error') return (
+    <div className="flex flex-col h-screen items-center justify-center gap-4 bg-paper px-6 text-center">
+      <p className="cl-display text-xl">연결이 매끄럽지 않았어요</p>
+      <p className="text-ink-soft text-sm leading-relaxed max-w-xs" role="alert">{error}</p>
+      <button onClick={() => { setError(''); setStep('login'); }} className="cl-btn cl-btn-primary mt-2">
+        다시 시도하기
+      </button>
+    </div>
+  );
+
+  /* ── 메인: 로그인 / 회원가입 ── */
   return (
-    <div className="relative flex flex-col min-h-screen overflow-hidden">
-      {/* 배경 이미지 */}
-      <img src="/homac-store.jpg" alt="" className="absolute inset-0 w-full h-full object-cover scale-105" />
+    <div className="flex flex-col min-h-screen bg-paper safe-top">
+      <div className="flex-1 flex flex-col justify-center px-6 py-10 max-w-md w-full mx-auto">
 
-      {/* 그라데이션 오버레이 */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/85" />
-
-      {/* 컨텐츠 */}
-      <div className="relative flex flex-col min-h-screen items-center justify-center px-6 gap-6">
-
-        {/* 로고 + 브랜드명 */}
-        <div className="flex flex-col items-center gap-3 mb-2">
+        {/* 브랜드 표식 */}
+        <div className="flex flex-col items-center gap-4 mb-8 animation-fade-up">
           {logo
-            ? <img src={logo} alt={name} className="w-24 h-24 rounded-2xl object-contain bg-white/90 shadow-2xl p-2 backdrop-blur-sm" />
-            : <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-700 to-emerald-900 flex items-center justify-center shadow-2xl border border-white/10">
-                <span className="text-4xl font-black text-amber-400 tracking-tighter">H</span>
+            ? <img src={logo} alt={name} className="w-16 h-16 rounded-xl object-contain bg-paper-raised border border-line p-1.5 shadow-card" />
+            : <div className="w-16 h-16 rounded-xl bg-paper-raised border border-line flex items-center justify-center shadow-card">
+                <span className="cl-display text-2xl text-gold">{name[0]}</span>
               </div>
           }
-          <h1 className="text-white text-3xl font-black tracking-wider drop-shadow-lg">{name}</h1>
-          <p className="text-white/50 text-sm text-center leading-relaxed">
-            가맹점주를 위한 법률 케어 서비스
-          </p>
+          <div className="text-center">
+            <p className="cl-eyebrow cl-eyebrow-gold">가맹점주 법률 케어</p>
+            <h1 className="cl-display text-2xl mt-2">{name}</h1>
+            <p className="text-ink-soft text-sm mt-2">혼자 끌어안지 않도록, 곁에서 함께합니다.</p>
+          </div>
         </div>
 
-        {/* 글래스모피즘 로그인 카드 */}
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-sm flex flex-col gap-3 bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl p-6 shadow-2xl"
-        >
-          <div className="space-y-1.5">
-            <label className="text-white/70 text-xs font-medium ml-1">이메일</label>
+        {/* 폼 카드 */}
+        <form onSubmit={handleSubmit} className="cl-card p-6 flex flex-col gap-4" noValidate>
+          <p className="cl-display text-lg">{isRegister ? '계정 만들기' : '다시 오신 걸 환영해요'}</p>
+
+          <div>
+            <label htmlFor="email" className="cl-label">이메일</label>
             <input
+              id="email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="email@example.com"
               required
-              className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3.5 text-white text-sm outline-none transition-all focus:border-amber-400 focus:bg-white/15 focus:ring-1 focus:ring-amber-400/30 placeholder:text-white/25"
+              className="cl-input"
             />
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-white/70 text-xs font-medium ml-1">비밀번호</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              minLength={6}
-              className="w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3.5 text-white text-sm outline-none transition-all focus:border-amber-400 focus:bg-white/15 focus:ring-1 focus:ring-amber-400/30 placeholder:text-white/25"
-            />
+          <div>
+            <label htmlFor="password" className="cl-label">비밀번호</label>
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete={isRegister ? 'new-password' : 'current-password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder={isRegister ? '6자 이상 입력해 주세요' : '비밀번호'}
+                required
+                minLength={6}
+                className="cl-input pr-12"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 표시'}
+                className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-ink-mute hover:text-ink-soft transition-colors"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {error && (
+              <p className="text-danger text-sm mt-2" role="alert">{error}</p>
+            )}
           </div>
 
-          {error && (
-            <p className="text-red-300 text-xs text-center bg-red-900/40 backdrop-blur-sm rounded-xl px-4 py-3 border border-red-500/20">
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={formLoading}
-            className="w-full mt-1 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold py-4 rounded-2xl text-base shadow-lg shadow-amber-500/25 active:scale-[0.97] transition-all disabled:opacity-50 hover:shadow-amber-500/40"
-          >
-            {formLoading ? '처리 중...' : isRegister ? '회원가입' : '로그인'}
+          <button type="submit" disabled={formLoading} className="cl-btn cl-btn-primary cl-btn-lg cl-btn-block mt-1">
+            {formLoading ? '처리 중…' : isRegister ? '가입하고 시작하기' : '로그인'}
           </button>
 
           <button
             type="button"
             onClick={() => { setIsRegister(!isRegister); setError(''); }}
-            className="text-white/40 text-xs text-center py-2 hover:text-white/60 transition-colors"
+            className="text-ink-soft text-sm text-center py-1 hover:text-ink transition-colors"
           >
-            {isRegister ? '이미 계정이 있으신가요? 로그인' : '계정이 없으신가요? 회원가입'}
+            {isRegister ? '이미 계정이 있으신가요? 로그인' : '처음이신가요? 계정 만들기'}
           </button>
         </form>
 
-        <p className="text-white/20 text-[11px] text-center px-4 mt-2">
-          로그인 시 서비스 이용약관 및 개인정보처리방침에 동의합니다
+        <p className="text-ink-mute text-xs text-center px-4 mt-6 leading-relaxed">
+          로그인하면 서비스 이용약관과 개인정보처리방침에 동의하게 됩니다.
         </p>
       </div>
     </div>

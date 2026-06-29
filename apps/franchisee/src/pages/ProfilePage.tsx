@@ -1,3 +1,5 @@
+// 점주 내 정보 — 프로필·계약 정보·로그아웃 (곁/Care 아트 디렉션)
+import { useState } from 'react';
 import { useNavigate }  from 'react-router-dom';
 import { useBrandStore } from '../store/brandStore';
 import { useAuthStore }  from '../store/authStore';
@@ -10,9 +12,9 @@ export default function ProfilePage() {
   const { brand }             = useBrandStore();
   const { user, franchisee, signOut } = useAuthStore();
   const brandColor            = brand?.primary_color ?? '#1E2D4E';
+  const [confirming, setConfirming] = useState(false);
 
   const handleSignOut = async () => {
-    if (!window.confirm('로그아웃 하시겠습니까?')) return;
     await signOut();
     navigate('/onboard', { replace: true });
   };
@@ -25,56 +27,80 @@ export default function ProfilePage() {
         : '미설정' },
   ];
 
+  const initial = franchisee?.name?.[0] ?? user?.displayName?.[0] ?? '?';
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <header className="text-white px-4 pt-12 pb-8 safe-top" style={{ background: brandColor }}>
-        <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => navigate(-1)} className="p-2 -ml-2">
-            <FaArrowLeft className="text-white/80" />
+    <div className="flex flex-col min-h-screen bg-paper">
+      <header className="bg-paper-raised border-b border-line safe-top">
+        <div className="px-3 pb-3 pt-1 flex items-center gap-2">
+          <button onClick={() => navigate(-1)} aria-label="뒤로 가기"
+                  className="w-10 h-10 flex items-center justify-center rounded-lg text-ink-soft hover:bg-paper-sunken transition-colors">
+            <FaArrowLeft />
           </button>
-          <h1 className="font-bold text-lg">내 정보</h1>
-        </div>
-        {/* 아바타 */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-20 h-20 rounded-full bg-[#C9A84C] flex items-center justify-center text-[#1E2D4E] text-3xl font-bold">
-            {franchisee?.name?.[0] ?? user?.displayName?.[0] ?? '?'}
+          <div>
+            <p className="cl-eyebrow cl-eyebrow-gold">내 정보</p>
+            <h1 className="cl-display text-xl">{franchisee?.name ?? user?.displayName ?? '점주님'}</h1>
           </div>
-          <p className="text-white font-bold text-xl">{franchisee?.name ?? user?.displayName ?? '-'}</p>
-          <p className="text-white/60 text-sm">{brand?.app_name ?? '법률케어'} 이용 중</p>
         </div>
       </header>
 
-      <main className="flex-1 px-4 py-5 space-y-4 pb-24">
+      <main className="flex-1 px-4 py-6 space-y-4 pb-24">
+        {/* 아바타 */}
+        <div className="flex flex-col items-center gap-3 py-2">
+          <div className="w-20 h-20 rounded-full flex items-center justify-center bg-gold-soft">
+            <span className="cl-display text-3xl text-gold">{initial}</span>
+          </div>
+          <div className="text-center">
+            <p className="cl-display text-xl">{franchisee?.name ?? user?.displayName ?? '점주님'}</p>
+            <p className="text-ink-soft text-sm mt-1">{brand?.app_name ?? '법률 케어'} 이용 중</p>
+          </div>
+        </div>
+
         {/* 정보 카드 */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          {INFO.map(({ icon: Icon, label, value }, i) => (
-            <div key={label} className={`flex items-center gap-4 px-4 py-3.5 ${i > 0 ? 'border-t border-gray-50' : ''}`}>
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                   style={{ background: brandColor + '15' }}>
-                <Icon style={{ color: brandColor }} className="text-sm" />
+        <div className="cl-card overflow-hidden divide-y divide-line">
+          {INFO.map(({ icon: Icon, label, value }) => (
+            <div key={label} className="flex items-center gap-4 px-4 py-3.5">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-paper-sunken">
+                <Icon style={{ color: brandColor }} className="text-sm" aria-hidden />
               </div>
-              <div className="flex-1">
-                <p className="text-gray-400 text-xs">{label}</p>
-                <p className="text-gray-900 text-sm font-medium">{value}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-ink-mute text-xs">{label}</p>
+                <p className="text-ink text-sm font-medium mt-0.5">{value}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* 서비스 제공 안내 */}
-        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-          <p className="text-gray-500 text-xs leading-relaxed text-center">
-            이 서비스는 <strong className="text-gray-700">법률사무소 청송</strong>이 운영합니다<br />
-            {brand?.app_name}은 가맹본사가 제공하는 법률 복지 서비스입니다
+        <div className="cl-card-sunken p-4">
+          <p className="text-ink-soft text-sm leading-relaxed text-center">
+            이 서비스는 <strong className="text-ink font-semibold">법률사무소 청송</strong>이 운영하며,<br />
+            {brand?.app_name ?? '법률 케어'}는 가맹본사가 마련한 법률 복지 서비스입니다.
           </p>
         </div>
 
         {/* 로그아웃 */}
-        <button onClick={handleSignOut}
-                className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 rounded-2xl py-3.5 text-red-500 text-sm font-medium">
-          <FaSignOutAlt /> 로그아웃
+        <button onClick={() => setConfirming(true)}
+                className="w-full flex items-center justify-center gap-2 cl-card py-3.5 text-danger text-sm font-semibold active:translate-y-px transition-transform">
+          <FaSignOutAlt aria-hidden /> 로그아웃
         </button>
       </main>
+
+      {/* 로그아웃 확인 시트 */}
+      {confirming && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 backdrop-blur-sm"
+             onClick={() => setConfirming(false)} role="dialog" aria-modal="true" aria-label="로그아웃 확인">
+          <div className="w-full max-w-md cl-card shadow-pop rounded-b-none p-6 pb-8 safe-bottom animation-fade-up"
+               onClick={e => e.stopPropagation()}>
+            <p className="cl-display text-lg text-center">정말 로그아웃할까요?</p>
+            <p className="text-ink-soft text-sm text-center mt-1.5">다시 이용하실 땐 이메일로 로그인하시면 돼요.</p>
+            <div className="flex flex-col gap-2.5 mt-6">
+              <button onClick={handleSignOut} className="cl-btn cl-btn-danger cl-btn-block">로그아웃</button>
+              <button onClick={() => setConfirming(false)} className="cl-btn cl-btn-ghost cl-btn-block">그대로 둘게요</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,0 +1,167 @@
+/* 케어로 디자인 시스템 — 공통 토큰 + 컴포넌트 클래스 (곁/Care 아트 디렉션)
+   각 앱 index.css 최상단에서 @import 후 @tailwind 디렉티브가 따라온다.
+   순수 CSS로 작성(@apply/@layer 미사용) → import 순서와 무관하게 안전. */
+
+:root {
+  /* 테넌트/앱 주입 (런타임 오버라이드 가능) */
+  --color-brand: #1E2D4E;
+  --color-brand-ring: rgba(30, 45, 78, 0.18);
+
+  /* 상수 팔레트 */
+  --paper: #FBF8F2;
+  --paper-raised: #FFFFFF;
+  --paper-sunken: #F4EFE6;
+  --ink: #1C1A17;
+  --ink-soft: #57514A;
+  --ink-mute: #8A8278;
+  --line: #E8E1D4;
+  --line-strong: #D9CFBC;
+  --gold: #B08A3E;
+  --gold-soft: #F2E8D2;
+}
+
+/* ── 기본 바탕 ─────────────────────────────────────────── */
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Pretendard Variable", Pretendard, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+* { -webkit-tap-highlight-color: transparent; }
+::selection { background: var(--gold-soft); color: var(--ink); }
+
+/* 키보드 포커스만 링 표시(마우스 클릭엔 미표시) */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── 타이포 시그니처 ───────────────────────────────────── */
+.cl-display {
+  font-family: "Nanum Myeongjo", serif;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+}
+.cl-display-xl { font-size: clamp(2rem, 6vw, 2.875rem); line-height: 1.12; }
+.cl-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.cl-eyebrow-gold { color: var(--gold); }
+/* 숫자 데이터 — 폭이 흔들리지 않도록 */
+.cl-num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* ── 헤어라인(시그니처 디바이더) ──────────────────────── */
+.cl-hairline { height: 1px; background: var(--line); border: 0; }
+.cl-rule-gold { height: 1px; border: 0; background: linear-gradient(90deg, var(--gold) 0%, var(--gold) 28%, transparent 28%); }
+
+/* ── 카드 ─────────────────────────────────────────────── */
+.cl-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 0.875rem;
+  box-shadow: 0 1px 2px rgba(28,26,23,0.04), 0 4px 16px -8px rgba(28,26,23,0.10);
+}
+.cl-card-flat {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 0.875rem;
+}
+.cl-card-sunken {
+  background: var(--paper-sunken);
+  border: 1px solid var(--line);
+  border-radius: 0.875rem;
+}
+
+/* ── 버튼 ─────────────────────────────────────────────── */
+.cl-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 2.75rem; padding: 0 1.25rem;
+  border-radius: 0.625rem;
+  font-size: 0.9375rem; font-weight: 600; line-height: 1;
+  cursor: pointer; border: 1px solid transparent;
+  transition: background-color .16s cubic-bezier(.22,1,.36,1), border-color .16s, color .16s, transform .12s, box-shadow .16s;
+  user-select: none; white-space: nowrap;
+}
+.cl-btn:active { transform: translateY(1px); }
+.cl-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+.cl-btn-primary { background: var(--color-brand); color: #fff; }
+.cl-btn-primary:hover:not(:disabled) { filter: brightness(1.08); box-shadow: 0 6px 20px -10px rgba(28,26,23,0.5); }
+
+.cl-btn-secondary { background: var(--paper-raised); color: var(--ink); border-color: var(--line-strong); }
+.cl-btn-secondary:hover:not(:disabled) { background: var(--paper-sunken); }
+
+.cl-btn-ghost { background: transparent; color: var(--ink-soft); }
+.cl-btn-ghost:hover:not(:disabled) { background: rgba(28,26,23,0.05); color: var(--ink); }
+
+.cl-btn-gold { background: var(--gold); color: #fff; }
+.cl-btn-gold:hover:not(:disabled) { filter: brightness(1.06); }
+
+.cl-btn-danger { background: var(--danger, #B23A2E); color: #fff; }
+.cl-btn-danger:hover:not(:disabled) { filter: brightness(1.06); }
+
+.cl-btn-sm { min-height: 2.25rem; padding: 0 0.875rem; font-size: 0.8125rem; border-radius: 0.5rem; }
+.cl-btn-lg { min-height: 3.25rem; padding: 0 1.5rem; font-size: 1rem; }
+.cl-btn-block { width: 100%; }
+
+/* ── 입력 필드 ────────────────────────────────────────── */
+.cl-label { display: block; font-size: 0.8125rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 0.4rem; }
+.cl-input {
+  width: 100%; min-height: 2.875rem; padding: 0 0.875rem;
+  background: var(--paper-raised); color: var(--ink);
+  border: 1px solid var(--line-strong); border-radius: 0.625rem;
+  font-size: 0.9375rem; line-height: 1.4;
+  transition: border-color .16s, box-shadow .16s;
+}
+.cl-input::placeholder { color: var(--ink-mute); }
+.cl-input:focus { outline: none; border-color: var(--color-brand); box-shadow: 0 0 0 3px var(--color-brand-ring); }
+textarea.cl-input { min-height: 6rem; padding: 0.7rem 0.875rem; resize: none; }
+
+/* ── 배지 / 상태 태그 ─────────────────────────────────── */
+.cl-badge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  height: 1.5rem; padding: 0 0.55rem; border-radius: 999px;
+  font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.01em;
+}
+.cl-badge-neutral { background: var(--paper-sunken); color: var(--ink-soft); border: 1px solid var(--line); }
+.cl-badge-brand { background: var(--brand-tint, #EEF1F6); color: var(--color-brand); }
+.cl-badge-gold { background: var(--gold-soft); color: #7A5A1E; }
+.cl-badge-success { background: #E4EFE7; color: #2E6F4E; }
+.cl-badge-warn { background: #F6EAD6; color: #9A5E12; }
+.cl-badge-danger { background: #F4E2DE; color: #9A3024; }
+/* 상태 점(색 단독 의존 방지: 텍스트 라벨과 함께 사용) */
+.cl-dot { width: 0.4rem; height: 0.4rem; border-radius: 999px; flex: none; }
+
+/* ── 스켈레톤(쉬머) ───────────────────────────────────── */
+.cl-skeleton {
+  position: relative; overflow: hidden;
+  background: var(--paper-sunken); border-radius: 0.5rem;
+}
+.cl-skeleton::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+
+/* ── 링크 ─────────────────────────────────────────────── */
+.cl-link { color: var(--color-brand); text-decoration: none; font-weight: 600; border-bottom: 1px solid transparent; transition: border-color .15s; }
+.cl-link:hover { border-bottom-color: currentColor; }
+
+/* ── 세이프 에어리어 ──────────────────────────────────── */
+.safe-top { padding-top: max(0.75rem, env(safe-area-inset-top)); }
+.safe-bottom { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+
+/* ── 모션 접근성 ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

@@ -36,6 +36,14 @@
   - 즉 "자기 brand_id/user_uid만" 정책으로 전부 잠그되, 브랜드 공개 조회만 anon 예외를 남길 것.
 - 검증 항목: A/B 브랜드 교차 case/message 0건, 구독 페이지 정상 노출, /brands·/cases 로딩멈춤 해소, **Realtime 채팅 송수신**, Supabase Advisor CRITICAL 해소.
 
+### 보안 점검 — 완료 상태 (2026-06-30)
+- **전 단계 완료**: Part A(Firebase 3rd-party auth) → B-0(클레임 role=authenticated + user_role, 백필) → B(accessToken 브리지) → 3단계(RLS 교체) 적용·라이브 검증 완료.
+- 커밋: `e10db9f`(B-0), `698210d`(ws 핫픽스+버전핀), `96f34bb`(RLS+brandStore).
+- 라이브 검증: 점주 홈/케이스/채팅, anon PII·테넌트 차단(401), 어드민/본사 전 화면 정상, Advisor Errors 0.
+- 함정 기록: ① 재배포 시 supabase-js 드리프트로 Node20 WebSocket 크래시 → functions에 ws 폴리필 + supabase-js 2.99.1 핀 + package-lock 커밋. ② brandStore가 created_at 정렬 → anon 컬럼권한 없어 401 → subdomain 정렬로 변경. ③ test-admin 계정 비활성화(disableUser, claims {}).
+- **후속(미해결)**: 알림/점주 HEAD count 503 간헐 — 공유 DB `law-caddy-db` 부하(CPU·디스크IO). RLS·우리 변경 무관(직접 호출 200). 별도 추적.
+- **별도 일정**: Node 20 EOL(2026.4) → functions Node 22 업그레이드.
+
 ## 미해결/후속
 - offline.html(franchisee) 내용 미완 — 여력 되면 케어 톤으로.
 - 번들 564KB 경고(admin) — 추후 code-split 고려(이번 범위 아님).

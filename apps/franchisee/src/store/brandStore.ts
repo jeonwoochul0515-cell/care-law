@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import { supabase } from '@care-law/shared';
 import type { Brand } from '@care-law/shared';
 
+// RLS 컬럼권한(비-PII)에 맞춘 공개 컬럼만 조회 (select * 금지)
+const BRAND_COLS = 'id, subdomain, name, app_name, logo_url, primary_color, active';
+
 function getSubdomain(): string {
   // ?brand= 쿼리 파라미터가 있으면 항상 우선 사용
   const brandParam = new URLSearchParams(window.location.search).get('brand');
@@ -40,9 +43,9 @@ export const useBrandStore = create<BrandState>((set) => ({
         // 기본/개발 환경: 첫 번째 활성 브랜드 로드
         const res = await supabase
           .from('carelaw_brands')
-          .select('*')
+          .select(BRAND_COLS)
           .eq('active', true)
-          .order('created_at', { ascending: true })
+          .order('subdomain', { ascending: true })   // anon 권한 컬럼으로 정렬(created_at 미허용 → 401 회피)
           .limit(1)
           .single();
         data = res.data;
@@ -50,7 +53,7 @@ export const useBrandStore = create<BrandState>((set) => ({
       } else {
         const res = await supabase
           .from('carelaw_brands')
-          .select('*')
+          .select(BRAND_COLS)
           .eq('subdomain', subdomain)
           .eq('active', true)
           .single();
@@ -62,7 +65,7 @@ export const useBrandStore = create<BrandState>((set) => ({
         set({ error: '브랜드를 찾을 수 없습니다.', loading: false });
         return;
       }
-      set({ brand: data, loading: false });
+      set({ brand: data as Brand, loading: false });
     } catch {
       set({ error: '브랜드 로드 실패', loading: false });
     }
